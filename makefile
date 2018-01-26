@@ -27,6 +27,24 @@ BX_DIR?=../bx
 GENIE?=$(BX_DIR)/tools/bin/$(OS)/genie
 NINJA?=$(BX_DIR)/tools/bin/$(OS)/ninja
 
+ifeq ($(NO_EXAMPLES),1)
+EXAMPLES_OPT?=
+else
+EXAMPLES_OPT?=--with-combined-examples
+endif
+
+ifeq ($(NO_TOOLS),1)
+TOOLS_OPT?=
+else
+TOOLS_OPT?=--with-tools
+endif
+
+ifeq ($(NO_SHARED_LIB),1)
+SHARED_LIB_OPT?=
+else
+SHARED_LIB_OPT?=--with-shared-lib
+endif
+
 .PHONY: help
 
 help:
@@ -39,24 +57,24 @@ clean: ## Clean all intermediate files.
 	@mkdir .build
 
 projgen: ## Generate project files for all configurations.
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                       vs2015
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib                       vs2017
-	$(GENIE) --with-tools --with-combined-examples                   --vs=winstore100      vs2017
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=mingw-gcc       gmake
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=linux-gcc       gmake
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=osx             gmake
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --xcode=osx           xcode4
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --xcode=ios           xcode4
-	$(GENIE)              --with-combined-examples --with-shared-lib --gcc=freebsd         gmake
-	$(GENIE)              --with-combined-examples                   --gcc=android-arm     gmake
-	$(GENIE)              --with-combined-examples                   --gcc=android-mips    gmake
-	$(GENIE)              --with-combined-examples                   --gcc=android-x86     gmake
-	$(GENIE)              --with-combined-examples                   --gcc=asmjs           gmake
-	$(GENIE)              --with-combined-examples                   --gcc=ios-arm         gmake
-	$(GENIE)              --with-combined-examples                   --gcc=ios-arm64       gmake
-	$(GENIE)              --with-combined-examples                   --gcc=ios-simulator   gmake
-	$(GENIE)              --with-combined-examples                   --gcc=ios-simulator64 gmake
-	$(GENIE)              --with-combined-examples                   --gcc=rpi             gmake
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT)                       vs2015
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT)                       vs2017
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT)                   --vs=winstore100      vs2017
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --gcc=mingw-gcc       gmake
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --gcc=linux-gcc       gmake
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --gcc=osx             gmake
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --xcode=osx           xcode4
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --xcode=ios           xcode4
+	$(GENIE)              $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --gcc=freebsd         gmake
+	$(GENIE)              $(EXAMPLES_OPT)                   --gcc=android-arm     gmake
+	$(GENIE)              $(EXAMPLES_OPT)                   --gcc=android-mips    gmake
+	$(GENIE)              $(EXAMPLES_OPT)                   --gcc=android-x86     gmake
+	$(GENIE)              $(EXAMPLES_OPT)                   --gcc=asmjs           gmake
+	$(GENIE)              $(EXAMPLES_OPT)                   --gcc=ios-arm         gmake
+	$(GENIE)              $(EXAMPLES_OPT)                   --gcc=ios-arm64       gmake
+	$(GENIE)              $(EXAMPLES_OPT)                   --gcc=ios-simulator   gmake
+	$(GENIE)              $(EXAMPLES_OPT)                   --gcc=ios-simulator64 gmake
+	$(GENIE)              $(EXAMPLES_OPT)                   --gcc=rpi             gmake
 
 .build/projects/gmake-android-arm:
 	$(GENIE) --gcc=android-arm gmake
@@ -91,7 +109,7 @@ asmjs-release: .build/projects/gmake-asmjs ## Build - Emscripten Release
 asmjs: asmjs-debug asmjs-release ## Build - Emscripten Debug and Release
 
 .build/projects/gmake-linux:
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=linux-gcc gmake
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --gcc=linux-gcc gmake
 linux-debug32: .build/projects/gmake-linux ## Build - Linux x86 Debug
 	$(MAKE) -R -C .build/projects/gmake-linux config=debug32
 linux-release32: .build/projects/gmake-linux ## Build - Linux x86 Release
@@ -103,7 +121,7 @@ linux-release64: .build/projects/gmake-linux ## Build - Linux x64 Release
 linux: linux-debug32 linux-release32 linux-debug64 linux-release64 ## Build - Linux x86/x64 Debug and Release
 
 .build/projects/gmake-freebsd:
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=freebsd gmake
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --gcc=freebsd gmake
 freebsd-debug32: .build/projects/gmake-freebsd ## Build - FreeBSD x86 Debug
 	$(MAKE) -R -C .build/projects/gmake-freebsd config=debug32
 freebsd-release32: .build/projects/gmake-freebsd ## Build - FreeBSD x86 Release
@@ -115,7 +133,7 @@ freebsd-release64: .build/projects/gmake-freebsd ## Build - FreeBSD x86 Release
 freebsd: freebsd-debug32 freebsd-release32 freebsd-debug64 freebsd-release64 ## Build - FreeBSD x86/x64 Debug and Release
 
 .build/projects/gmake-mingw-gcc:
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=mingw-gcc gmake
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --gcc=mingw-gcc gmake
 mingw-gcc-debug32: .build/projects/gmake-mingw-gcc ## Build - MinGW GCC x86 Debug
 	$(MAKE) -R -C .build/projects/gmake-mingw-gcc config=debug32
 mingw-gcc-release32: .build/projects/gmake-mingw-gcc ## Build - MinGW GCC x86 Release
@@ -139,7 +157,7 @@ mingw-clang-release64: .build/projects/gmake-mingw-clang ## Build - MinGW Clang 
 mingw-clang: mingw-clang-debug32 mingw-clang-release32 mingw-clang-debug64 mingw-clang-release64 ## Build - MinGW Clang x86/x64 Debug and Release
 
 .build/projects/vs2015:
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib vs2015
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) vs2015
 vs2015-debug32: .build/projects/vs2015 ## Build - VS2015 x86 Debug
 	devenv .build/projects/vs2015/bgfx.sln /Build "Debug|Win32"
 vs2015-release32: .build/projects/vs2015 ## Build - VS2015 x86 Release
@@ -151,7 +169,7 @@ vs2015-release64: .build/projects/vs2015 ## Build - VS2015 x64 Release
 vs2015: vs2015-debug32 vs2015-release32 vs2015-debug64 vs2015-release64 ## Build - VS2015 x86/x64 Debug and Release
 
 .build/projects/vs2017:
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib vs2017
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) vs2017
 vs2017-debug32: .build/projects/vs2017 ## Build - vs2017 x86 Debug
 	devenv .build/projects/vs2017/bgfx.sln /Build "Debug|Win32"
 vs2017-release32: .build/projects/vs2017 ## Build - vs2017 x86 Release
@@ -163,7 +181,7 @@ vs2017-release64: .build/projects/vs2017 ## Build - vs2017 x64 Release
 vs2017: vs2017-debug32 vs2017-release32 vs2017-debug64 vs2017-release64 ## Build - vs2017 x86/x64 Debug and Release
 
 .build/projects/vs2017-winstore100:
-	$(GENIE) --with-combined-examples --vs=winstore100 vs2017
+	$(GENIE) $(EXAMPLES_OPT) --vs=winstore100 vs2017
 vs2017-winstore100-debug32: .build/projects/vs2017-winstore100 ## Build - vs2017-winstore100 x86 Debug
 	devenv .build/projects/vs2017-winstore100/bgfx.sln /Build "Debug|Win32"
 vs2017-winstore100-release32: .build/projects/vs2017-winstore100 ## Build - vs2017-winstore100 x86 Release
@@ -175,7 +193,7 @@ vs2017-winstore100-release64: .build/projects/vs2017-winstore100 ## Build - vs20
 vs2017-winstore100: vs2017-winstore100-debug32 vs2017-winstore100-release32 vs2017-winstore100-debug64 vs2017-winstore100-release64 ## Build - vs2017-winstore100 x86/x64 Debug and Release
 
 .build/projects/gmake-osx:
-	$(GENIE) --with-tools --with-combined-examples --with-shared-lib --gcc=osx gmake
+	$(GENIE) $(TOOLS_OPT) $(EXAMPLES_OPT) $(SHARED_LIB_OPT) --gcc=osx gmake
 osx-debug32: .build/projects/gmake-osx ## Build - OSX x86 Debug
 	$(MAKE) -C .build/projects/gmake-osx config=debug32
 osx-release32: .build/projects/gmake-osx ## Build - OSX x86 Release
